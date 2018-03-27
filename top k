@@ -1,0 +1,102 @@
+/*解决大数据top k问题
+  小根堆top k  => 大的
+  大根堆top k  => 小的
+*/
+
+#include<stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <queue>
+#include <map>
+#include <list>
+#include <assert.h>
+#include <deque>
+#include <functional>
+
+using namespace std;
+
+
+int main()
+{	
+	int arr[10000]={0};
+	for(int i=0; i<10000; ++i)
+	{
+		arr[i] = rand()%100;
+	}
+	struct Value
+	{
+		Value(int key = 0)
+			:_key(key),_count(1){}
+
+
+		/*
+		对200个文件扫描，
+		*/
+		bool operator>(const Value &lh)const
+		{
+			return _count > lh._count;
+		}
+	
+		int _key;
+		int _count;
+	};
+
+	map<int,Value> map2;
+	
+	priority_queue<Value, vector<Value>, greater<Value>> prique;//小根堆                     
+	//哈希统计数据重复的次数
+	for(int i=0; i<10000; ++i)
+	{
+		map<int, Value>::iterator it = map2.find(arr[i]);
+		if(map2.end() == it )
+		{
+			map2[arr[i]] = Value(arr[i]);
+		}
+		else
+		{
+			it->second._count++;
+		}
+	}
+
+	map<int,Value>::iterator it = map2.begin();
+	for(int i=0; it!=map2.end(); ++it, ++i )
+	{
+		if(i < 10 )
+		{
+			prique.push(it->second);
+		}
+		else
+		{
+			if( it->second > prique.top() )
+			{
+				prique.pop();
+				prique.push(it->second);
+			}
+		}
+		//cout<<it->first<<" "<<it->second<<endl;
+	}
+	/*for(int i=0; i<10; ++i)
+	{
+		cout<<prique.top()<<endl;
+		prique.pop();
+	}*/
+
+	for(int i=0; i<10; ++i)
+	{
+		for( it=map2.begin(); it !=map2.end(); ++it)
+		{
+			if( prique.top()._count == it->second._count )
+			{
+				cout<<it->first<<" 出现 "<<prique.top()._count<<"次"<<endl;
+				prique.pop();
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
